@@ -94,7 +94,7 @@ class Product{
     }
    /**
      * get a product given its id
-     * @param id id of the product
+     * @param $id id of the product
      * @return Product product if product is found and false if not found
      */
     public static function getProductById($id)
@@ -104,10 +104,10 @@ class Product{
         $results = $connection->query($query);
         if ($results) {
             $array = $results->fetch_all(MYSQL_ASSOC);
-           $product = new Product($results['price'],$results['name'],$results['description'],$results['seller_id'],$results['status'],
-                                 $results['admin_id'],$results['category']);
+           $product = new Product($array['price'],$array['name'],$array['description'],$array['seller_id'],$array['status'],
+                                 $array['admin_id'],$array['category']);
             //set the product's id
-            $product ->setId($results['id']);
+            $product ->setId($array['id']);
 
             return $product;
         } else {
