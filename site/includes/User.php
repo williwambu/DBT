@@ -55,8 +55,9 @@ class User {
         $results = $connection -> query($query);
 
         if($results){
-            $user = new User($results['name'],$results['location'],$results['phone_number'],$results['email_address'],$results['profile_pictures']);
-            $user ->setId($results['id']);
+            $array = $results -> fetch_all(MYSQL_ASSOC);
+            $user = new User($array['name'],$array['location'],$array['phone_number'],$array['email_address'],$array['profile_pictures']);
+            $user ->setId($array['id']);
             return $user;
         }
         else{
