@@ -6,14 +6,16 @@ class User {
         $phone_number,
         $email_address,
         $profile_picture,
+        $password,
         $con;
 
-    function __construct($name,$location,$phone_number,$email_address,$profile_picture){
+    function __construct($name,$location,$phone_number,$email_address,$profile_picture,$password){
         $this -> name = $name;
         $this -> location = $location;
         $this -> phone_number = $phone_number;
         $this -> email_address = $email_address;
         $this -> profile_picture = $profile_picture;
+        $this -> password = $password;
 
         $this -> con = (new DbConnect()) -> getConnection();
     }
@@ -38,10 +40,18 @@ class User {
     public function getProfilePicture(){
         return $this -> profile_picture;
     }
+    public function getPassword(){
+        return $this -> password;
+    }
     public function insertUser(){
-        $query = "INSERT INTO tbl_users(name,location,phone_number,email_address,profile_picture)
-                  VALUES ('$this->name','$this->location','$this->phone_number','$this->email_address','$this->profile_picture')";
-        $this ->con-> query($query);
+        $query = "INSERT INTO tbl_users(name,location,phone_number,email_address,profile_picture,password)
+                  VALUES ('$this->name','$this->location','$this->phone_number','$this->email_address','$this->profile_picture','$this->password')";
+        if($this ->con-> query($query)){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
    /**
      * get a user given the user id
@@ -56,7 +66,7 @@ class User {
 
         if($results){
             $array = $results -> fetch_all(MYSQL_ASSOC);
-            $user = new User($array['name'],$array['location'],$array['phone_number'],$array['email_address'],$array['profile_pictures']);
+            $user = new User($array['name'],$array['location'],$array['phone_number'],$array['email_address'],$array['profile_pictures'],$array['password']);
             $user ->setId($array['id']);
             return $user;
         }
@@ -68,9 +78,9 @@ class User {
      * update a user
      * @return true if successful and false otherwise
      */
-    public static function updateUser($id,$name,$location,$phone_number,$email_address,$profile_picture){
+    public static function updateUser($id,$name,$location,$phone_number,$email_address,$profile_picture,$password){
         $query = "UPDATE SET name='$name' location='$location' phone_number = '$phone_number' email_address='$email_address'
-                  profile_picture='$profile_picture' WHERE id=$id";
+                  profile_picture='$profile_picture' password='$password' WHERE id=$id";
         $connection =(new DbConnect()) -> getConnection();
         if ($connection->query($query)) {
             return true;
