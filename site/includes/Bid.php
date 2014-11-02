@@ -35,8 +35,8 @@ class Bid {
             return false;
         }
     }
-    public static function updateBid($id,$price,$bidder_id){
-        $query = "UPDATE tbl_bids set id=$id price=$price bidder_id=$$bidder_id ";
+    public static function updateBid($id,$price,$bidder_id,$product_id){
+        $query = "UPDATE tbl_bids set price=$price,bidder_id=$bidder_id,product_id=$product_id WHERE id=$id";
         $conn = (new DbConnect())->getConnection();
         if($conn->query($query)){
             return true;
