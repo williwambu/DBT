@@ -1,5 +1,5 @@
 <?php
-
+require('DbConnect.php');
 class Product{
     private $id,
         $price,
@@ -30,7 +30,7 @@ class Product{
      * getter functions for all private properties
      */
     public function getId(){
-
+        return $this ->id;
     }
     public function getPrice(){
         return $this -> price;
@@ -51,7 +51,10 @@ class Product{
         return $this -> admin_id;
     }
     public function getCategory(){
-        require $this -> category;
+        return $this -> category;
+    }
+    public function getPicturePaths(){
+        return $this -> paths_array;
     }
    /**
      * insert a new product into the database
@@ -101,11 +104,13 @@ class Product{
     {
         $query = "SELECT * FROM tbl_products WHERE id=" . $id;
         $connection = (new DbConnect())->getConnection();
+        $paths_array = Product::getProductPictures($id);
         $results = $connection->query($query);
         if ($results) {
-            $array = $results->fetch_all(MYSQL_ASSOC);
+            $array_all = $results->fetch_all(MYSQL_ASSOC);
+            $array = $array_all[0];
            $product = new Product($array['price'],$array['name'],$array['description'],$array['seller_id'],$array['status'],
-                                 $array['admin_id'],$array['category']);
+                                 $array['admin_id'],$array['category'],$paths_array);
             //set the product's id
             $product ->setId($array['id']);
 
@@ -119,10 +124,16 @@ class Product{
      * @param $id product id
      * @return  array of pictures paths
      */
-    public function getProductPictures($id){
-        $query = "SELECT picture_path FROM tbl_pictures WHERE id=$id";
-        $results = $this -> con -> query($query);
-        return $results -> fetch_all(MYSQL_ASSOC);
+    public static function getProductPictures($id){
+        $query = "SELECT picture_path FROM tbl_pictures WHERE item_id=$id";
+        $connection = (new DbConnect()) -> getConnection();
+        $results =$connection -> query($query);
+        if($results){
+            return $results -> fetch_all(MYSQL_ASSOC);
+        }
+        else{
+            return false;
+        }
     }
    /**
      * updates an existing product
@@ -130,7 +141,7 @@ class Product{
      */
     public static function updateProduct($price, $name, $description, $seller_id, $status, $admin_id, $category, $id)
     {
-        $query = "UPDATE SET price=$price,name='$name',description='$description',seller_id=$seller_id,status='$status',
+        $query = "UPDATE tbl_products SET price=$price,name='$name',description='$description',seller_id=$seller_id,status='$status',
                  admin_id=$admin_id,category='$category' WHERE id=$id";
         $connection = (new DbConnect())->getConnection();
         if ($connection->query($query)) {
@@ -145,11 +156,11 @@ class Product{
      * @return true on successful deletion and false if deletion fails
      */
     public static function deleteProduct($id){
-         $delete_product = "DELETE * FROM tbl_products WHERE id = $id";
-         $delete_pictures = "DELETE * FROM tbl_pictures WHERE item_id = $id";
+         $delete_product = "DELETE FROM tbl_products WHERE id = $id";
+         $delete_pictures = "DELETE FROM tbl_pictures WHERE item_id = $id";
 
         //get the photos associated with the product
-        $path_array = "SELECT picture_path FROM tbl_pictures WHERE item_id = $id";
+        $path_array = "SELECT picture_path FROM tbl_pictures WHERE item_id =$id";
         self::deleteProductPictures($path_array);
 
         $connection = (new DbConnect()) -> getConnection();
@@ -182,7 +193,17 @@ class Product{
     {
         $this->id = $id;
     }
-
+    public static function getProductsBids($id){
+        $query = "SELECT * FROM tbl_bids WHERE product_id=$id";
+        $connection = (new DbConnect())->getConnection();
+        $results = $connection ->query($query);
+        if($results){
+            return $results->fetch_all(MYSQL_ASSOC);
+        }
+        else{
+            return false;
+        }
+    }
 
 }
 ?>
