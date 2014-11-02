@@ -1,4 +1,5 @@
 <?php
+include_once('DbConnect.php');
 class User {
     private $id,
         $name,
@@ -6,8 +7,8 @@ class User {
         $phone_number,
         $email_address,
         $profile_picture,
-        $password,
-        $con;
+        $password;
+    public $con;
 
     function __construct($name,$location,$phone_number,$email_address,$profile_picture,$password){
         $this -> name = $name;
@@ -45,7 +46,7 @@ class User {
     }
     public function insertUser(){
         $query = "INSERT INTO tbl_users(name,location,phone_number,email_address,profile_picture,password)
-                  VALUES ('$this->name','$this->location','$this->phone_number','$this->email_address','$this->profile_picture','$this->password')";
+                  VALUES('$this->name','$this->location','$this->phone_number','$this->email_address','$this->profile_picture','$this->password')";
         if($this ->con-> query($query)){
             return true;
         }
@@ -65,8 +66,10 @@ class User {
         $results = $connection -> query($query);
 
         if($results){
-            $array = $results -> fetch_all(MYSQL_ASSOC);
-            $user = new User($array['name'],$array['location'],$array['phone_number'],$array['email_address'],$array['profile_pictures'],$array['password']);
+            $array_all = $results -> fetch_all(MYSQL_ASSOC);
+            $array = $array_all[0];
+            var_dump($array);
+            $user = new User($array["name"],$array['location'],$array['phone_number'],$array['email_address'],$array['profile_picture'],$array['password']);
             $user ->setId($array['id']);
             return $user;
         }
@@ -79,8 +82,8 @@ class User {
      * @return true if successful and false otherwise
      */
     public static function updateUser($id,$name,$location,$phone_number,$email_address,$profile_picture,$password){
-        $query = "UPDATE SET name='$name' location='$location' phone_number = '$phone_number' email_address='$email_address'
-                  profile_picture='$profile_picture' password='$password' WHERE id=$id";
+        $query = "UPDATE tbl_users SET name='$name',location='$location',phone_number ='$phone_number',email_address='$email_address',
+                  profile_picture='$profile_picture',password='$password' WHERE id=".$id;
         $connection =(new DbConnect()) -> getConnection();
         if ($connection->query($query)) {
             return true;
@@ -95,7 +98,7 @@ class User {
      * @return true on successful deletion and false if deletion fails
      */
     public static function deleteUser($id){
-        $query = "DELETE * FROM tbl_users WHERE id=$id";
+        $query = "DELETE FROM tbl_users WHERE id=$id";
         $connection = (new DbConnect()) ->getConnection();
         if($connection -> query($query)){
             return true;
